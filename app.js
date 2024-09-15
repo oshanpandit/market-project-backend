@@ -22,9 +22,9 @@ app.use(cors({
 app.use(express.json());
 
 app.use((req,res,next)=>{
-    User.findById('66e03d9b1a4f3b0717ce3bd7')
+    User.findById('66e691090f70a5067c8ad8f7')
     .then(user=>{
-      req.user=new User(user.name,user.email,user.cart,user._id);
+      req.user=user;
       next();
     })
 });
@@ -32,15 +32,29 @@ app.use('/products',productRoutes);
 app.use('/cart',cartRoutes);
 
 
-mongoConnect(()=>{
-   app.listen(PORT,()=>{
-      console.log('The server is up and running on port',PORT);
-   })
+// mongoConnect(()=>{
+//    app.listen(PORT,()=>{
+//       console.log('The server is up and running on port',PORT);
+//    })
+// })
+mongoose.connect('mongodb+srv://oshanpandit:oshanpandit123@shoppercluster.ze2e0.mongodb.net/shop?retryWrites=true&w=majority&appName=ShopperCluster')
+.then(result=>{
+  User.findOne().then(user=>{
+    if(!user){
+      const user=new User({
+        name:'Oshan',
+        email:'oshan@test.com',
+        cart:{
+          items:[]
+        }
+      });
+      user.save();
+    }
+  })
+  app.listen(PORT,()=>{
+    console.log('The server is up and running on port ',PORT);
+  });
 })
-// mongoose.connect('mongodb+srv://oshanpandit:oshanpandit123@shoppercluster.ze2e0.mongodb.net/shop?retryWrites=true&w=majority&appName=ShopperCluster')
-// .then(result=>{
-//   app.listen(PORT);
-// })
-// .catch(error=>{
-//   console.error(error);
-// })
+.catch(error=>{
+  console.error(error);
+})

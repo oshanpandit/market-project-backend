@@ -1,10 +1,14 @@
 const Product=require('../models/product_model');
-
+const Order=require('../models/order_model');
 exports.getCartItems=async(req,res,next)=>{
+   console.log('inside controller');
     try{
-        const cartList=await req.user.getAllCartItems();
-        res.status(200).json(cartList);
+      await req.user.populate('cart.items.productId');
+      const cartList = req.user.cart.items;
+      console.log(cartList);
+      res.status(200).json(cartList);
       }catch(error){
+         console.log(error);
         res.status(500).json({message:'server error'});
       }
 }
@@ -31,18 +35,33 @@ exports.deleteItemFromCart=async(req,res,next)=>{
 }
 
 exports.checkoutCart=async(req,res,next)=>{
+   await req.user.populate('cart.items.productId');
+   const productList=req.user.cart.items.map(i=>{
+      return {quantity:i.quantity,productData:{...i.productId._doc}};
+   });
+   console.log('the list is',productList);
+   const order=new Order({
+      user:{
+         name:req.user.name,
+         userId:req.user
+      },
+      products:productList
+   });
    try{
-      const response=await req.user.addOrder();
+      const response=await order.save();
+      req.user.clearCart();
       res.status(200).json(response);
    }catch(error){
+      console.log(error);
       res.status(500).json({message:"Server Error",error});
    }
 }
 
 exports.getOrders=async(req,res,next)=>{
+   // const orderList=await Order.find({'user.userId':req.user._id});
    try{
-      const response=await req.user.getOrders();
-      res.status(200).json(response);
+      const orderList=await Order.find({'user.userId':req.user._id});
+      res.status(200).json(orderList);
    }catch(error){
       res.status(500).json({message:"Server Error"});
    }
