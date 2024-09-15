@@ -1,7 +1,7 @@
 const Product=require('../models/product_model');
 const Order=require('../models/order_model');
 exports.getCartItems=async(req,res,next)=>{
-   console.log('inside controller');
+
     try{
       await req.user.populate('cart.items.productId');
       const cartList = req.user.cart.items;
@@ -58,7 +58,6 @@ exports.checkoutCart=async(req,res,next)=>{
 }
 
 exports.getOrders=async(req,res,next)=>{
-   // const orderList=await Order.find({'user.userId':req.user._id});
    try{
       const orderList=await Order.find({'user.userId':req.user._id});
       res.status(200).json(orderList);

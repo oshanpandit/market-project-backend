@@ -11,12 +11,14 @@ exports.addProduct=async(req,res,next)=>{
     const title=req.body.title;
     const price=parseInt(req.body.price);
     const description=req.body.description;
+    const category=req.body.category;
     const rating=Math.floor(Math.random() * 5) + 1;
     const product=new Product({
         title:title,
         price:price,
         description:description,
         rating:rating,
+        category:category,
         userId:req.user
     });
     try{
