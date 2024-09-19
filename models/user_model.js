@@ -20,9 +20,9 @@ const userSchema=new Schema({
     }
 });
 
-userSchema.methods.addToCart=async function(product){
+userSchema.methods.addToCart=async function(productId){
    const cartProductIndex = this.cart.items.findIndex(cartItem => 
-               cartItem.productId==product._id);
+               cartItem.productId.toString()==productId.toString());
             
             const updatedCartItems=[...this.cart.items];
             
@@ -32,7 +32,7 @@ userSchema.methods.addToCart=async function(product){
                const newQuantity=updatedCartItems[cartProductIndex].quantity+1;
                updatedCartItems[cartProductIndex].quantity=newQuantity;
             }else{
-               updatedCartItems.push({productId:product._id,quantity:initialQuantity});
+               updatedCartItems.push({productId:productId,quantity:initialQuantity});
             }
             const updatedCart={
                items:updatedCartItems

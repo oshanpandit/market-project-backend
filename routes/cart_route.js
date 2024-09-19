@@ -5,7 +5,7 @@ const Product=require('../models/product_model');
 const cartController=require('../controllers/cart_controller');
 
 router.get('/',cartController.getCartItems);
-router.post('/add-item',cartController.addItemToCart);
+router.get('/add-item/:_id',cartController.addItemToCart);
 router.delete('/:id',cartController.deleteItemFromCart);
 router.get('/checkout',cartController.checkoutCart);
 router.get('/orders',cartController.getOrders);

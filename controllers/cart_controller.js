@@ -5,18 +5,17 @@ exports.getCartItems=async(req,res,next)=>{
     try{
       await req.user.populate('cart.items.productId');
       const cartList = req.user.cart.items;
-      console.log(cartList);
       res.status(200).json(cartList);
       }catch(error){
          console.log(error);
-        res.status(500).json({message:'server error'});
+         res.status(500).json({message:'server error'});
       }
 }
 
 exports.addItemToCart=async(req,res,next)=>{
-    const product=req.body;
+    const productId=req.params._id;
     try{
-       const response=await req.user.addToCart(product);
+       const response=await req.user.addToCart(productId);
        res.status(201).json(response);
     }catch(error){
        console.log(error);
@@ -39,7 +38,6 @@ exports.checkoutCart=async(req,res,next)=>{
    const productList=req.user.cart.items.map(i=>{
       return {quantity:i.quantity,productData:{...i.productId._doc}};
    });
-   console.log('the list is',productList);
    const order=new Order({
       user:{
          name:req.user.name,

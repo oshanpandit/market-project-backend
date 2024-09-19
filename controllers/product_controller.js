@@ -23,10 +23,8 @@ exports.addProduct=async(req,res,next)=>{
     });
     try{
         const response= product.save();
-        console.log('created product');
         res.status(201).json(response);
     }catch(error){
-        console.log(error);
         res.status(500).json({message:'server error'},error);
     }
 }
