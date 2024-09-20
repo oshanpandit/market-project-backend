@@ -1,17 +1,18 @@
 const express = require('express');
 const bodyParser=require('body-parser');
 const cors=require('cors');
-const app = express();
-const PORT = 8000;
 const session=require('express-session');
-const MongoDbStore=require('connect-mongodb-session')(session);
 
+const MongoDbStore=require('connect-mongodb-session')(session);
 const mongoConnect=require('./util/database').mongoConnect;
 
 const productRoutes = require('./routes/product_route');
 const cartRoutes=require('./routes/cart_route');
 const User = require('./models/user_model');
 const authRoutes=require('./routes/auth_route');
+
+const app = express();
+const PORT = 8000;
 
 const mongoose=require('mongoose');
 const store=new MongoDbStore({
