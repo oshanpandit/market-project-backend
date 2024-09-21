@@ -4,6 +4,7 @@ const cors=require('cors');
 const session=require('express-session');
 
 const MongoDbStore=require('connect-mongodb-session')(session);
+// const MongoDbStore = require('connect-mongo');
 const mongoConnect=require('./util/database').mongoConnect;
 
 const productRoutes = require('./routes/product_route');
@@ -20,9 +21,13 @@ const store=new MongoDbStore({
   collection:'sessions'
 });
 
-
 app.use(bodyParser.urlencoded({extended:false}));
-app.use(session({secret:'blah something',resave:false,saveUninitialized:false,store:store}));
+app.use(session({
+  secret: 'blah something', 
+  resave: false,
+  saveUninitialized: false,
+  store: store
+}));
 
 app.use(cors({
     origin: 'http://localhost:5173',

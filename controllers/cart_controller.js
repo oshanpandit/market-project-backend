@@ -1,10 +1,13 @@
 const Product=require('../models/product_model');
 const Order=require('../models/order_model');
+const User=require('../models/user_model');
+
 exports.getCartItems=async(req,res,next)=>{
 
     try{
-      await req.user.populate('cart.items.productId');
-      const cartList = req.user.cart.items;
+      const currentUser=await User.findById(req.session.user._id);
+      await currentUser.populate('cart.items.productId');
+      const cartList = currentUser.cart.items;
       res.status(200).json(cartList);
       }catch(error){
          console.log(error);
@@ -15,7 +18,8 @@ exports.getCartItems=async(req,res,next)=>{
 exports.addItemToCart=async(req,res,next)=>{
     const productId=req.params._id;
     try{
-       const response=await req.user.addToCart(productId);
+       const currentUser=await User.findById(req.session.user._id);
+       const response=await currentUser.addToCart(productId);
        res.status(201).json(response);
     }catch(error){
        console.log(error);
@@ -26,7 +30,8 @@ exports.addItemToCart=async(req,res,next)=>{
 exports.deleteItemFromCart=async(req,res,next)=>{
     const id = req.params.id;
     try {
-       const result = await req.user.deleteItemFromCart(id);
+       const currentUser=await User.findById(req.session.user._id);
+       const result = await currentUser.deleteItemFromCart(id);
        res.status(200).json(result);
     } catch (error) {
        res.status(500).json({ message: 'Server error', error });
@@ -34,20 +39,21 @@ exports.deleteItemFromCart=async(req,res,next)=>{
 }
 
 exports.checkoutCart=async(req,res,next)=>{
-   await req.user.populate('cart.items.productId');
-   const productList=req.user.cart.items.map(i=>{
+   const currentUser=await User.findById(req.session.user._id);
+   await currentUser.populate('cart.items.productId');
+   const productList=currentUser.cart.items.map(i=>{
       return {quantity:i.quantity,productData:{...i.productId._doc}};
    });
    const order=new Order({
       user:{
-         name:req.user.name,
-         userId:req.user
+         name:currentUser.name,
+         userId:currentUser
       },
       products:productList
    });
    try{
       const response=await order.save();
-      req.user.clearCart();
+      currentUser.clearCart();
       res.status(200).json(response);
    }catch(error){
       console.log(error);
@@ -57,7 +63,8 @@ exports.checkoutCart=async(req,res,next)=>{
 
 exports.getOrders=async(req,res,next)=>{
    try{
-      const orderList=await Order.find({'user.userId':req.user._id});
+      const currentUser=await User.findById(req.session.user._id);
+      const orderList=await Order.find({'user.userId':currentUser._id});
       res.status(200).json(orderList);
    }catch(error){
       res.status(500).json({message:"Server Error"});
