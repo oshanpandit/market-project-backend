@@ -50,18 +50,6 @@ app.use('/auth',authRoutes);
 
 mongoose.connect('mongodb+srv://oshanpandit:oshanpandit123@shoppercluster.ze2e0.mongodb.net/shop?retryWrites=true&w=majority&appName=ShopperCluster')
 .then(result=>{
-  User.findOne().then(user=>{
-    if(!user){
-      const user=new User({
-        name:'Oshan',
-        email:'oshan@test.com',
-        cart:{
-          items:[]
-        }
-      });
-      user.save();
-    }
-  })
   app.listen(PORT,()=>{
     console.log('The server is up and running on port ',PORT);
   });
