@@ -8,6 +8,7 @@ exports.getAllProducts=async(req,res,next)=>{
      }
 }
 exports.addProduct=async(req,res,next)=>{
+    console.log('session hai',req.session.user);
     const title=req.body.title;
     const price=parseInt(req.body.price);
     const description=req.body.description;
@@ -19,7 +20,7 @@ exports.addProduct=async(req,res,next)=>{
         description:description,
         rating:rating,
         category:category,
-        userId:req.user
+        userId:req.session.user._id
     });
     try{
         const response= product.save();

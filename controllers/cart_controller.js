@@ -1,6 +1,8 @@
 const Product=require('../models/product_model');
 const Order=require('../models/order_model');
 const User=require('../models/user_model');
+const nodemailer=require('nodemailer');
+const transporter=require('../util/mail-transporter');
 
 exports.getCartItems=async(req,res,next)=>{
 
@@ -54,7 +56,48 @@ exports.checkoutCart=async(req,res,next)=>{
    try{
       const response=await order.save();
       currentUser.clearCart();
-      res.status(200).json(response);
+      const totalAmount = order.products.reduce((acc, item) => acc + (item.quantity * item.productData.price), 0);
+
+  // Generate product list HTML
+  const productListHTML = order.products.map(item => `
+    <li>
+      <strong>${item.productData.title}</strong> (x${item.quantity}) - $${item.productData.price}
+    </li>
+  `).join('');
+
+  const mailOptions = {
+    from: 'Support@shopper.com',           
+    to: currentUser.email,      
+    subject: 'Order Placed!',                  
+    html: `
+      <h1>Order Confirmation</h1>
+      <p>Dear ${currentUser.name},</p>
+      <p>Thank you for your order! Your order has been successfully placed and will reach you in 3-4 days.</p>
+      
+      <h2>Order Details:</h2>
+      <ul>
+        <li><strong>Order ID:</strong> ${order._id}</li>
+        <li><strong>Items:</strong></li>
+        <ul>
+          ${productListHTML}
+        </ul>
+        <li><strong>Total Amount:</strong> $${totalAmount}</li>
+      </ul>
+      
+      <p>We hope you enjoy your purchase. If you have any questions, feel free to contact our support team.</p>
+      <p>Best Regards,<br>Shopper Inc</p>
+    ` 
+  };
+
+  transporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+
+   return res.status(200).json(response);
    }catch(error){
       console.log(error);
       res.status(500).json({message:"Server Error",error});
